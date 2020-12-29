@@ -2,7 +2,7 @@
 title: "Django 서버에서 동시접속자 증가시 502 발생 문제"
 date: "2020-05-19"
 ---
-[1.문제](#1.문제)  
+1.문제
 2.uWSGI worker 갯수 증가
 3.db connection pool 도입  
 4.MySQLclient에서 PyMySQL 로 변경  
@@ -35,7 +35,7 @@ Sever
 ### 3. db connection pool 도입
 
 uWSGI 에서 몽키 패치를 해도 디비 커넥션이 병목현상이 디비 커넥션에서 일어난다고 생각했다. 그래서 `sqlalchemy` 디비 커넥션 풀링을 도입해서 스테이징에서 테스트 했다.
-![db connection with pooling](/2020-05-19-django-concurrent-user-and-502-error/db_connection_with_pooling.png)  
+![db connection with pooling](/test/2020-05-19-django-concurrent-user-and-502-error/db_connection_with_pooling.png)  
 커넥션 풀링 도입 전과 후과 다르다. 그러나 동시접속자 수가 증가하면 여전히 502가 발생했다.
 
 
@@ -49,7 +49,7 @@ uWSGI 에서는 gevent 쓰려면 몽키패치를 해야한다. 몽키패치는 p
 ### 5. uWSGI 에서 gunicorn 으로 변경
 
 pymysql 로 라이브러리를 변경 한 뒤에 uWSGI 의 몽키패치가 효과가 있었지만, 동시접속사 수 문제에서는 여전히 큰 효과가 없었다. 그리고 uWSGI 를 잘쓰려면 학습해야하는데 우선 피쳐 개발이 급해서 학습할 시간이 없고, 대략 gunicorn 성능이 더 좋다고 해서 gunicorn 옮기기로 결정했다. 아래는 gunicorn 으로 변경 후 500대 에러의 변화다.
-![gunicorn deploy](/2020-05-19-django-concurrent-user-and-502-error/gunicorn_deploy.png)  
+![gunicorn deploy](/test/2020-05-19-django-concurrent-user-and-502-error/gunicorn_deploy.png)  
 
 
 

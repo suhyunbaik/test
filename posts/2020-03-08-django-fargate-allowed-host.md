@@ -36,7 +36,7 @@ nginx 를 추가했지만 동일문제가 계속 발생했다. 그래서 두번�
 
 ###3.해결
 
-stack overflow에서 발견한 해결책은 이렇다. ECS 컨테이너는 환경변수에 해당 컨테이너의 IPv4 address를 추가하기 때문에 그걸 갖고와서 ALLOWED HOST에 추가해주면 된다.
+Stack overflow에서 발견한 해결책은 이렇다. ECS 컨테이너는 환경변수에 해당 컨테이너의 IPv4 address를 추가하기 때문에 그걸 갖고와서 ALLOWED HOST에 추가해주면 된다.
 
 ```python
 import requests
