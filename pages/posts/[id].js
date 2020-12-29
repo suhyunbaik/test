@@ -18,7 +18,6 @@ export default function Post({postData}) {
             <section className={styles.navigation}>
                 <div><Link href="/posts/profile">😋</Link></div>
                 <div><Link href="/">🔥</Link></div>
-                <div><Link href="/">🚀</Link></div>
             </section>
 
             <section>

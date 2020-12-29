@@ -16,7 +16,6 @@ export default function Home({allPostsData}) {
             <section className={styles.navigation}>
                 <div><Link href="/posts/profile">😋</Link></div>
                 <div><Link href="/">🔥</Link></div>
-                <div><Link href="/">🚀</Link></div>
             </section>
 
             <section>
