@@ -26,7 +26,7 @@ export default function Post({postData}) {
                     <div className={utilStyles.lightText}>
                         {postData.date}
                     </div>
-                    <div dangerouslySetInnerHTML={{__html: postData.contentHtml}}/>
+                    <div dangerouslySetInnerHTML={{__html: postData.contentHtml}} className={utilStyles.post}/>
                 </article>
             </section>
         </div>
