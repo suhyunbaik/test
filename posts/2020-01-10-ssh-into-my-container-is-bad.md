@@ -1,7 +1,6 @@
 ---
-title: 컨테이너에 ssh 하는건 나쁜가?
-date: 2020-01-10
-categories: [DevOps]
+title: "컨테이너에 ssh 하는건 나쁜가?"
+date: "2020-01-10"
 ---
 
 

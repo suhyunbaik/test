@@ -1,7 +1,6 @@
 ---
-title: 2020년 회고
-date: 2020-11-20
-categories: [Retrospective]
+title: "2020년 회고"
+date: "2020-11-20"
 ---
 
 
