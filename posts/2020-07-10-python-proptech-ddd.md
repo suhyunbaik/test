@@ -1,7 +1,6 @@
 ---
 title: 파이선으로 개발한 프롭테크 서비스 DDD 구조로 리팩토링
-layout: page
-tags: [DDD]
+date: 2020-07-10
 categories: [DDD]
 ---
 

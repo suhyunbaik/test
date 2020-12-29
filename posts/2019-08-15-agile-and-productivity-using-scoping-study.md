@@ -1,7 +1,6 @@
 ---
-layout: page
 title: 애자일과 생산성측정  
-tags: [Agile, Productivity]
+date: 2019-08-15
 categories: [Agile]
 ---
 [단독 "빨라야 살아남는다"…신한금융, 애자일조직 도입한다](https://www.msn.com/ko-kr/money/topstories/%EB%8B%A8%EB%8F%85-%EB%B9%A8%EB%9D%BC%EC%95%BC-%EC%82%B4%EC%95%84%EB%82%A8%EB%8A%94%EB%8B%A4%E2%80%A6%EC%8B%A0%ED%95%9C%EA%B8%88%EC%9C%B5-%EC%95%A0%EC%9E%90%EC%9D%BC%EC%A1%B0%EC%A7%81-%EB%8F%84%EC%9E%85%ED%95%9C%EB%8B%A4/ar-AAzyXzC)  

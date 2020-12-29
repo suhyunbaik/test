@@ -1,10 +1,7 @@
 ---
-layout: page
 title: Sentry를 Ubuntu에 self-hosted로 구축하기
-tags: [DevOps]
+date: 2020-01-05
 categories: [DevOps]
-image: images/thumbnails/sentry_and_selfhosted.png
-
 ---
 
 updated: 2020-01-08

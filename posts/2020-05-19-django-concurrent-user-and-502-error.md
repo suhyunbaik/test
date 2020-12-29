@@ -1,7 +1,6 @@
 ---
 title: Django 서버에서 동시접속자 증가시 502 발생 문제
-layout: page
-tags: [DevOps]
+date: 2020-05-19
 categories: [DevOps]
 ---
 [1.문제](#1.문제)  

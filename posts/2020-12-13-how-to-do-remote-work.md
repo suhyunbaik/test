@@ -1,7 +1,6 @@
 ---
 title: 재택근무에 대처하는 나의 자세 
-layout: page
-tags: [Work]
+date: 2020-12-13
 categories: [Work]
 ---
 

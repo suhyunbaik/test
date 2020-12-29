@@ -1,7 +1,6 @@
 ---
 title: 번역 | 장고에서 리퀘스트를 처리하는 방법
-layout: page
-tags: [Django]
+date: 2020-11-23
 categories: [Django]
 ---
 
