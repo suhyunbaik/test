@@ -13,7 +13,7 @@ updated: 2020-01-08
 4. GeoIp 설정
 5. install.sh 로 센트리 실행
 
-##### 1. 도커 설치
+###1. 도커 설치
 
 AWS EC2 ubuntu instance를 런칭한 후 접속한다.
 
@@ -206,8 +206,7 @@ volumes:
 
 
 
-#### Reference
-
+### References
 * https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-18-04
 * https://medium.com/sentry-with-docker/installing-sentry-with-docker-c1d83dfee577
 * https://github.com/getsentry/onpremise

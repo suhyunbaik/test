@@ -16,5 +16,5 @@ CTO는 다음에 만약 비슷한 상황이 벌어진다면 더 빨리 복구하
 
 
 
-###### References
-https://developers.google.com/web/fundamentals/performance/why-performance-matters
+### References  
+* https://developers.google.com/web/fundamentals/performance/why-performance-matters

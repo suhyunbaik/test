@@ -3,8 +3,6 @@ title: "파이선으로 개발한 프롭테크 서비스 DDD 구조로 리팩토
 date: "2020-07-10"
 ---
 
-목차  
-
 서비스를 context 로 분리하고 django app으로 구분  
 view, service, repository, model 로 분리  
 IoC Container 구현  
