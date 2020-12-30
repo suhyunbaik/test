@@ -8,7 +8,8 @@
 }
 
 .navigation > div {
-   margin-bottom: 5px;
+    margin-bottom: 5px;
+    font-size: 15px;
 }
 
 .list {
@@ -22,8 +23,7 @@
 }
 
 .postTitle {
-    font-size: 20px;
-    font-weight: bold;
+    font-size: 15px;
 }
 
 .postDate {
@@ -36,4 +36,8 @@
     font-size: 12px;
     font-weight: lighter;
     color: gray;
+}
+
+.tmi > a {
+    text-decoration: underline;
 }

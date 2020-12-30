@@ -7,15 +7,15 @@ export default function Home({allPostsData}) {
     return (
         <div className={styles.container}>
             <Head>
-                <title>Dev</title>
-                <link rel="icon" href="/favicon.ico"/>
+                <title>이리보고 저리보고</title>
+                {/*<link rel="icon" href="/favicon.ico"/>*/}
                 <meta name="viewport" content="initial-scale=1.0, width=device-width"/>
                 <meta property="og:title" content="Dev" key="title"/>
             </Head>
 
             <section className={styles.navigation}>
-                <div><Link href="/posts/profile">😋</Link></div>
-                <div><Link href="/">🔥</Link></div>
+                <div><Link href="/posts/profile">소개</Link></div>
+                <div><Link href="/">모든 글</Link></div>
             </section>
 
             <section>

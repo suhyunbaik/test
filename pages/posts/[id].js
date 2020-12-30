@@ -10,14 +10,14 @@ export default function Post({postData}) {
         <div className={styles.container}>
             <Head>
                 <title>{postData.title}</title>
-                <link rel="icon" href="/favicon.ico"/>
+                {/*<link rel="icon" href="/favicon.ico"/>*/}
                 <meta name="viewport" content="initial-scale=1.0, width=device-width"/>
                 <meta property="og:title" content={postData.title} key="title"/>
             </Head>
 
             <section className={styles.navigation}>
-                <div><Link href="/posts/profile">😋</Link></div>
-                <div><Link href="/">🔥</Link></div>
+                <div><Link href="/posts/profile">소개</Link></div>
+                <div><Link href="/">모든 글</Link></div>
             </section>
 
             <section>
