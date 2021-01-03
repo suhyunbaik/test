@@ -41,3 +41,12 @@
 .tmi > a {
     text-decoration: underline;
 }
+
+.externalLink {
+    text-decoration: underline;
+    font-size: 14px;
+}
+
+.profile {
+    margin-bottom: 10px;
+}
