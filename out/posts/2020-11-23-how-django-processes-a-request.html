@@ -1,0 +1,96 @@
+<!DOCTYPE html><html><head><meta charSet="utf-8"/><title>번역 | 장고에서 리퀘스트를 처리하는 방법</title><meta name="viewport" content="initial-scale=1.0, width=device-width"/><meta property="og:title" content="번역 | 장고에서 리퀘스트를 처리하는 방법"/><meta name="next-head-count" content="4"/><link rel="preload" href="/test/_next/static/css/64270e95009c71c18378.css" as="style"/><link rel="stylesheet" href="/test/_next/static/css/64270e95009c71c18378.css" data-n-g=""/><link rel="preload" href="/test/_next/static/css/6bffca5348d7a38926b5.css" as="style"/><link rel="stylesheet" href="/test/_next/static/css/6bffca5348d7a38926b5.css" data-n-p=""/><noscript data-n-css=""></noscript><link rel="preload" href="/test/_next/static/chunks/main-f094e29a130fd0913879.js" as="script"/><link rel="preload" href="/test/_next/static/chunks/webpack-95c2b224bccf352ee870.js" as="script"/><link rel="preload" href="/test/_next/static/chunks/framework.8952124311421be7a52f.js" as="script"/><link rel="preload" href="/test/_next/static/chunks/commons.8a9058e35fa745bbf02c.js" as="script"/><link rel="preload" href="/test/_next/static/chunks/pages/_app-97b1d9fc1b95c6a753be.js" as="script"/><link rel="preload" href="/test/_next/static/chunks/df2f4768a04bf8778e0feda17bdebe66dead9af1.7a73df8e06444f1fdbed.js" as="script"/><link rel="preload" href="/test/_next/static/chunks/pages/posts/%5Bid%5D-c328b0f962c8fbba879f.js" as="script"/></head><body><div id="__next"><div class="Home_container__1EcsU"><section class="Home_navigation__3h36s"><div><a href="/test/posts/profile">소개</a></div><div><a href="/test">모든 글</a></div></section><section><article><h1 class="utils_headingXl__1XecN">번역 | 장고에서 리퀘스트를 처리하는 방법</h1><div class="utils_lightText__12Ckm">2020-11-23</div><div class="utils_post__39Wet"><ol>
+<li>신호수신</li>
+<li>핸들러의 작동</li>
+<li>리퀘스트 처리 시작</li>
+<li>미들웨어 처리 1</li>
+<li>레솔루션 타임</li>
+<li>미들웨어 처리 2</li>
+<li>뷰(View)</li>
+<li>응답시간(Response time)</li>
+<li>미들웨어 처리 3(예외)</li>
+<li>무응답</li>
+<li>미들웨어 처리 4(마지막 단계)</li>
+<li>응답</li>
+</ol>
+<p><a href="https://www.b-list.org/weblog/2006/jun/13/how-django-processes-request/">How Django processes a request</a> 번역글입니다.</p>
+<h3>1. 신호 수신</h3>
+<p>2가지 방법으로 장고 앱을 invoke한다.</p>
+<p>1 아파치/모드파이선(apache/mod_python) 서버가 셋업되어있을 경우, 모드 파이선이 리퀘스트를 장고에게 전달하고 <code>django.core.hanlders.modpython.ModPythonHandler</code> 인스턴스를 생성한다.</p>
+<p>2 <code>WSGI</code>를 준수하는 다른 요소일경우 장고 <code>django.core.handlers.wsgi.WsgiHandler</code> 인스턴스를 생성한다.</p>
+<h3>2. 핸들러의 작동</h3>
+<p>핸들러가 인스턴스화 되면, 다음과 같은 과정을 거친다.</p>
+<ol>
+<li>
+<p>핸들러가 장고 세팅 파일을 임포트한다.</p>
+</li>
+<li>
+<p>장고의 커스텀 익셥센 클래스를 임포트한다.</p>
+</li>
+</ol>
+<p>3핸들러는 자체 <code>load_middleware</code> 메소드를 호출하고, 해당 메소드는 세팅파일의 <code>MIDDLEWARE_CLASSES</code> 에 나열된 미들웨어 클래스들을 불러온다.</p>
+<p>미들웨어는 4가지 상태에 대한 후킹이 가능하다. (<code>process_request</code>, <code>process_view</code>, <code>process_response</code>, <code>process_exception</code>) 핸들러가 미들웨어를 검사할때는 메소드 이름으로 검사한다.</p>
+<h3>3. 리퀘스트 처리 시작</h3>
+<p>리퀘스트를 처리할 준비가 다 됐기 때문에, 시그널 <code>request_started</code> 를 디스패칭한다. 모드 파이선과 WSGI 가 리퀘스트를 다르게 처리하기 때문에 모드 파이선일 경우 <code>django.core.handlers.modpython.ModPythonRequest</code> 를, WSGI 일 경우에는 <code>django.core.hanlders.wsgi.WSGIRequest</code> 라는 클래스를 사용한다. <code>HttpRequest</code> 가 전달되면 핸들러가 <code>get_response</code>  메소드를 호출하고, <code>HttpRequest</code> 를 인자로 전달한다.</p>
+<h3>4. 미들웨어 처리 1</h3>
+<p><code>get_response</code> 는 핸들러의 <code>_request_middleware</code> 인스턴스 변수를 순회하면서 리스트 내 각 메소들르 호출해 <code>HttpRequest</code> 인스턴스를 아규먼트로 전달한다. 이 메소드들은 처리 과정을 무시하고 바로  <code>get_response</code> 를 반환할 수 있는 옵션이 있다. 만약 메소드 중 하나가 바로 반환을 한다면, 메인 핸들러 코드로 돌아가고 남은 미들웨어 클래스는 무시한다.</p>
+<h3>5. 레솔루션 타임</h3>
+<p>미들웨어중 어느것도 리스폰스를 즉시 반환하지 않았다면, 핸들러는 요청된 URL를 분석한다. 핸들러는 세팅 파일에 있는 <code>ROOT_URLCONF</code> 를 읽고,  <code>django.core.urlresolvers.RegexURLResolver</code> 인스턴스를 만든 뒤 해당 인스턴스의 <code>resolve</code> 메소드를 호출한다.</p>
+<p>만약 매칭되는 url 이 없다면 <code>django.core.urlresolvers.Resolver404</code> 예외를 발생시킨다.</p>
+<h3>6. 미들웨어 처리 2</h3>
+<p>뷰 함수가 사용된다면 핸들러가 <code>_view_middleware</code> 리스트에 있는 메소드르 호출해 <code>HttpRequest</code> 를 전달한다. 이 단계에서도 미들웨어가 개입해 핸들러가 바로 리스폰스를 반환하도록 할 수 있다.</p>
+<h3>7. 뷰</h3>
+<p>장고는 무엇이든지 간단한 요구조건 몇가지만 들어맞으면 뷰로 분류한다.</p>
+<ul>
+<li>
+<p>호출가능해야한다.</p>
+</li>
+<li>
+<p>첫번쨰 인자로 <code>django.http.HttpRequest</code> 의 인스턴스를 받는다.</p>
+</li>
+<li>
+<p><code>django.http.HttpResponse</code> 인스턴스를 반환하거나 예외를 발생시킨다.</p>
+</li>
+</ul>
+<h3>8. 응답시간(Response time)</h3>
+<p>템플릿이 있을 경우, 템플릿이 렌더링 된 후, 또는 그에 상응하는 결과가 생성된 후에는 뷰가 <code>django.http.HttpResponse</code> 인스턴스를 생성할 책임이 있다. 이 클래스의 생성자는 2가지 선택적 인수를 받는다.</p>
+<ul>
+<li>
+<p>리스폰스 바디에 담을 스트링</p>
+</li>
+<li>
+<p>리스폰스 헤더 <code>Content-Type</code> 의 값</p>
+</li>
+</ul>
+<h3>9. 미들웨어 처리 3: 예외</h3>
+<p>뷰에서 예외가 발생하면 <code>get_response</code>가 <code>_exception_middleware</code>에 있는 메소드를 호출해 <code>HttpRequest</code> 와 예외를 인자로 전달한다. 호출된 메소드 중 하나가 <code>HttpResponse</code>를 반환한다.</p>
+<h3>10. 무응답</h3>
+<p>아래와 같은 경우일때  <code>HttpResponse</code> 를 반환한다.</p>
+<ol>
+<li>
+<p>뷰가 값을 반환하지 않음</p>
+</li>
+<li>
+<p>뷰가 예외를 발생시키지만 그걸 처리할수 있는 미들웨어가 없음</p>
+</li>
+<li>
+<p>예외를 처리하는 미들웨어에서 새 예외사항이 발생함</p>
+</li>
+</ol>
+<p>이러한 상황이 발생할 경우 <code>get_response</code> 가 자체적으로 에러를 처리한다.</p>
+<ol>
+<li><code>http404</code> 예외가 발생하고 <code>DEBUG=True</code> 일 경우, <code>get_response</code>가 <code>django.views.debug.technical_404_response</code> 라는 뷰를 실행하고 <code>HttpRequest</code> 와 익셉션을 전달한다. 이 뷰는 URL Resolver 가 매치하려고 햇었던 패턴에 대한 정보를 표시한다.</li>
+<li>만약 <code>DEBUG=False</code> 이면 익셉션은 <code>Http404</code>, <code>get_response</code> 가 URL Resolver 의 <code>resolve_404</code> 를 호출한다. 이 메소드는 url 설정을 읽어서 어떤 뷰가 404 에러를 핸들링 해야 하는지 찾는다. 디폴트 값은 <code>django.views.defaults.page_not_found</code> 이지만, 변수 <code>hanlder404</code>에 값을 할당해 URL 설정을 오버라이드 할 수 있다.</li>
+<li>익셉션의 종류에 상관없이, <code>DEBUG=True</code> 일 경우, <code>get_response</code>가 <code>django.views.debug.technical_500_response</code> 뷰를 실행하고 <code>HttpResponse</code>와 익셉션을 인자로 전달한다. 이 뷰는 트레이스백, 스택 각 레벨의 지역 변수, 등 자세한 정보를 제공한다.</li>
+<li><code>DEBUG=False</code> 일 경우, <code>get_response</code> 가 URL 리졸버의 <code>resolve_500</code> 메소들르 호출하고, 3번고 비슷한 방법으로 작동한다.</li>
+</ol>
+<p>추가적으로, <code>django.http.Http404</code> 또는 파이선 빌트인 <code>SystemExit</code> 이외의 익셉션일 경우, 핸들러는 디스패처 신호 <code>got_request_exception</code>을 실행하고 반환하기 전에 장고 admins 설정에 리스팅된 사람들에게 메일을 발송하기전에 예외에 대한 설명을 만든다.</p>
+<h3>11. 미들웨어 처리 4, 마지막 단계</h3>
+<p>이 단계에서 <code>HttpResponse</code> 인스턴스를 반환한다. <code>HttpResponse</code>는 <code>_response_middleware</code>의 메소드를 호출하고, <code>HttpRequest</code>, <code>HttpResponse</code>를 인자로 전달한다. 이 단계는 미들웨어가 변화을 일으킬 수 있는 마지막 단계다.</p>
+<h3>12. 응답</h3>
+<p>이제 마지막 단계다. 핸들러가 디스패처 시그널 <code>request_finished</code> 를 발생시킨다. 이 신호를 받은 핸들러는 현재 리퀘스트를 위해 사용했던 자원들을 정리하고 해제한다. 예를 들어, 장고는 열러있는 모든 데이터베이스 커넥션을 닫는  <code>request_finished</code> 에 리스너를 연결한다. 이 작업 뒤에, 핸들러는 적절한 반환할 값을 만들고 반환한다.</p>
+<p>이렇게 해서 장고가 리퀘스트를 다루는 처음부터 마지막 까지 과정을 훑어보았다.</p>
+<h3>References</h3>
+<ul>
+<li>https://www.b-list.org/weblog/2006/jun/13/how-django-processes-request/</li>
+</ul>
+</div></article></section></div></div><script id="__NEXT_DATA__" type="application/json">{"props":{"pageProps":{"postData":{"id":"2020-11-23-how-django-processes-a-request","contentHtml":"\u003col\u003e\n\u003cli\u003e신호수신\u003c/li\u003e\n\u003cli\u003e핸들러의 작동\u003c/li\u003e\n\u003cli\u003e리퀘스트 처리 시작\u003c/li\u003e\n\u003cli\u003e미들웨어 처리 1\u003c/li\u003e\n\u003cli\u003e레솔루션 타임\u003c/li\u003e\n\u003cli\u003e미들웨어 처리 2\u003c/li\u003e\n\u003cli\u003e뷰(View)\u003c/li\u003e\n\u003cli\u003e응답시간(Response time)\u003c/li\u003e\n\u003cli\u003e미들웨어 처리 3(예외)\u003c/li\u003e\n\u003cli\u003e무응답\u003c/li\u003e\n\u003cli\u003e미들웨어 처리 4(마지막 단계)\u003c/li\u003e\n\u003cli\u003e응답\u003c/li\u003e\n\u003c/ol\u003e\n\u003cp\u003e\u003ca href=\"https://www.b-list.org/weblog/2006/jun/13/how-django-processes-request/\"\u003eHow Django processes a request\u003c/a\u003e 번역글입니다.\u003c/p\u003e\n\u003ch3\u003e1. 신호 수신\u003c/h3\u003e\n\u003cp\u003e2가지 방법으로 장고 앱을 invoke한다.\u003c/p\u003e\n\u003cp\u003e1 아파치/모드파이선(apache/mod_python) 서버가 셋업되어있을 경우, 모드 파이선이 리퀘스트를 장고에게 전달하고 \u003ccode\u003edjango.core.hanlders.modpython.ModPythonHandler\u003c/code\u003e 인스턴스를 생성한다.\u003c/p\u003e\n\u003cp\u003e2 \u003ccode\u003eWSGI\u003c/code\u003e를 준수하는 다른 요소일경우 장고 \u003ccode\u003edjango.core.handlers.wsgi.WsgiHandler\u003c/code\u003e 인스턴스를 생성한다.\u003c/p\u003e\n\u003ch3\u003e2. 핸들러의 작동\u003c/h3\u003e\n\u003cp\u003e핸들러가 인스턴스화 되면, 다음과 같은 과정을 거친다.\u003c/p\u003e\n\u003col\u003e\n\u003cli\u003e\n\u003cp\u003e핸들러가 장고 세팅 파일을 임포트한다.\u003c/p\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003cp\u003e장고의 커스텀 익셥센 클래스를 임포트한다.\u003c/p\u003e\n\u003c/li\u003e\n\u003c/ol\u003e\n\u003cp\u003e3핸들러는 자체 \u003ccode\u003eload_middleware\u003c/code\u003e 메소드를 호출하고, 해당 메소드는 세팅파일의 \u003ccode\u003eMIDDLEWARE_CLASSES\u003c/code\u003e 에 나열된 미들웨어 클래스들을 불러온다.\u003c/p\u003e\n\u003cp\u003e미들웨어는 4가지 상태에 대한 후킹이 가능하다. (\u003ccode\u003eprocess_request\u003c/code\u003e, \u003ccode\u003eprocess_view\u003c/code\u003e, \u003ccode\u003eprocess_response\u003c/code\u003e, \u003ccode\u003eprocess_exception\u003c/code\u003e) 핸들러가 미들웨어를 검사할때는 메소드 이름으로 검사한다.\u003c/p\u003e\n\u003ch3\u003e3. 리퀘스트 처리 시작\u003c/h3\u003e\n\u003cp\u003e리퀘스트를 처리할 준비가 다 됐기 때문에, 시그널 \u003ccode\u003erequest_started\u003c/code\u003e 를 디스패칭한다. 모드 파이선과 WSGI 가 리퀘스트를 다르게 처리하기 때문에 모드 파이선일 경우 \u003ccode\u003edjango.core.handlers.modpython.ModPythonRequest\u003c/code\u003e 를, WSGI 일 경우에는 \u003ccode\u003edjango.core.hanlders.wsgi.WSGIRequest\u003c/code\u003e 라는 클래스를 사용한다. \u003ccode\u003eHttpRequest\u003c/code\u003e 가 전달되면 핸들러가 \u003ccode\u003eget_response\u003c/code\u003e  메소드를 호출하고, \u003ccode\u003eHttpRequest\u003c/code\u003e 를 인자로 전달한다.\u003c/p\u003e\n\u003ch3\u003e4. 미들웨어 처리 1\u003c/h3\u003e\n\u003cp\u003e\u003ccode\u003eget_response\u003c/code\u003e 는 핸들러의 \u003ccode\u003e_request_middleware\u003c/code\u003e 인스턴스 변수를 순회하면서 리스트 내 각 메소들르 호출해 \u003ccode\u003eHttpRequest\u003c/code\u003e 인스턴스를 아규먼트로 전달한다. 이 메소드들은 처리 과정을 무시하고 바로  \u003ccode\u003eget_response\u003c/code\u003e 를 반환할 수 있는 옵션이 있다. 만약 메소드 중 하나가 바로 반환을 한다면, 메인 핸들러 코드로 돌아가고 남은 미들웨어 클래스는 무시한다.\u003c/p\u003e\n\u003ch3\u003e5. 레솔루션 타임\u003c/h3\u003e\n\u003cp\u003e미들웨어중 어느것도 리스폰스를 즉시 반환하지 않았다면, 핸들러는 요청된 URL를 분석한다. 핸들러는 세팅 파일에 있는 \u003ccode\u003eROOT_URLCONF\u003c/code\u003e 를 읽고,  \u003ccode\u003edjango.core.urlresolvers.RegexURLResolver\u003c/code\u003e 인스턴스를 만든 뒤 해당 인스턴스의 \u003ccode\u003eresolve\u003c/code\u003e 메소드를 호출한다.\u003c/p\u003e\n\u003cp\u003e만약 매칭되는 url 이 없다면 \u003ccode\u003edjango.core.urlresolvers.Resolver404\u003c/code\u003e 예외를 발생시킨다.\u003c/p\u003e\n\u003ch3\u003e6. 미들웨어 처리 2\u003c/h3\u003e\n\u003cp\u003e뷰 함수가 사용된다면 핸들러가 \u003ccode\u003e_view_middleware\u003c/code\u003e 리스트에 있는 메소드르 호출해 \u003ccode\u003eHttpRequest\u003c/code\u003e 를 전달한다. 이 단계에서도 미들웨어가 개입해 핸들러가 바로 리스폰스를 반환하도록 할 수 있다.\u003c/p\u003e\n\u003ch3\u003e7. 뷰\u003c/h3\u003e\n\u003cp\u003e장고는 무엇이든지 간단한 요구조건 몇가지만 들어맞으면 뷰로 분류한다.\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003cp\u003e호출가능해야한다.\u003c/p\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003cp\u003e첫번쨰 인자로 \u003ccode\u003edjango.http.HttpRequest\u003c/code\u003e 의 인스턴스를 받는다.\u003c/p\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003cp\u003e\u003ccode\u003edjango.http.HttpResponse\u003c/code\u003e 인스턴스를 반환하거나 예외를 발생시킨다.\u003c/p\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch3\u003e8. 응답시간(Response time)\u003c/h3\u003e\n\u003cp\u003e템플릿이 있을 경우, 템플릿이 렌더링 된 후, 또는 그에 상응하는 결과가 생성된 후에는 뷰가 \u003ccode\u003edjango.http.HttpResponse\u003c/code\u003e 인스턴스를 생성할 책임이 있다. 이 클래스의 생성자는 2가지 선택적 인수를 받는다.\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003cp\u003e리스폰스 바디에 담을 스트링\u003c/p\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003cp\u003e리스폰스 헤더 \u003ccode\u003eContent-Type\u003c/code\u003e 의 값\u003c/p\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch3\u003e9. 미들웨어 처리 3: 예외\u003c/h3\u003e\n\u003cp\u003e뷰에서 예외가 발생하면 \u003ccode\u003eget_response\u003c/code\u003e가 \u003ccode\u003e_exception_middleware\u003c/code\u003e에 있는 메소드를 호출해 \u003ccode\u003eHttpRequest\u003c/code\u003e 와 예외를 인자로 전달한다. 호출된 메소드 중 하나가 \u003ccode\u003eHttpResponse\u003c/code\u003e를 반환한다.\u003c/p\u003e\n\u003ch3\u003e10. 무응답\u003c/h3\u003e\n\u003cp\u003e아래와 같은 경우일때  \u003ccode\u003eHttpResponse\u003c/code\u003e 를 반환한다.\u003c/p\u003e\n\u003col\u003e\n\u003cli\u003e\n\u003cp\u003e뷰가 값을 반환하지 않음\u003c/p\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003cp\u003e뷰가 예외를 발생시키지만 그걸 처리할수 있는 미들웨어가 없음\u003c/p\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003cp\u003e예외를 처리하는 미들웨어에서 새 예외사항이 발생함\u003c/p\u003e\n\u003c/li\u003e\n\u003c/ol\u003e\n\u003cp\u003e이러한 상황이 발생할 경우 \u003ccode\u003eget_response\u003c/code\u003e 가 자체적으로 에러를 처리한다.\u003c/p\u003e\n\u003col\u003e\n\u003cli\u003e\u003ccode\u003ehttp404\u003c/code\u003e 예외가 발생하고 \u003ccode\u003eDEBUG=True\u003c/code\u003e 일 경우, \u003ccode\u003eget_response\u003c/code\u003e가 \u003ccode\u003edjango.views.debug.technical_404_response\u003c/code\u003e 라는 뷰를 실행하고 \u003ccode\u003eHttpRequest\u003c/code\u003e 와 익셉션을 전달한다. 이 뷰는 URL Resolver 가 매치하려고 햇었던 패턴에 대한 정보를 표시한다.\u003c/li\u003e\n\u003cli\u003e만약 \u003ccode\u003eDEBUG=False\u003c/code\u003e 이면 익셉션은 \u003ccode\u003eHttp404\u003c/code\u003e, \u003ccode\u003eget_response\u003c/code\u003e 가 URL Resolver 의 \u003ccode\u003eresolve_404\u003c/code\u003e 를 호출한다. 이 메소드는 url 설정을 읽어서 어떤 뷰가 404 에러를 핸들링 해야 하는지 찾는다. 디폴트 값은 \u003ccode\u003edjango.views.defaults.page_not_found\u003c/code\u003e 이지만, 변수 \u003ccode\u003ehanlder404\u003c/code\u003e에 값을 할당해 URL 설정을 오버라이드 할 수 있다.\u003c/li\u003e\n\u003cli\u003e익셉션의 종류에 상관없이, \u003ccode\u003eDEBUG=True\u003c/code\u003e 일 경우, \u003ccode\u003eget_response\u003c/code\u003e가 \u003ccode\u003edjango.views.debug.technical_500_response\u003c/code\u003e 뷰를 실행하고 \u003ccode\u003eHttpResponse\u003c/code\u003e와 익셉션을 인자로 전달한다. 이 뷰는 트레이스백, 스택 각 레벨의 지역 변수, 등 자세한 정보를 제공한다.\u003c/li\u003e\n\u003cli\u003e\u003ccode\u003eDEBUG=False\u003c/code\u003e 일 경우, \u003ccode\u003eget_response\u003c/code\u003e 가 URL 리졸버의 \u003ccode\u003eresolve_500\u003c/code\u003e 메소들르 호출하고, 3번고 비슷한 방법으로 작동한다.\u003c/li\u003e\n\u003c/ol\u003e\n\u003cp\u003e추가적으로, \u003ccode\u003edjango.http.Http404\u003c/code\u003e 또는 파이선 빌트인 \u003ccode\u003eSystemExit\u003c/code\u003e 이외의 익셉션일 경우, 핸들러는 디스패처 신호 \u003ccode\u003egot_request_exception\u003c/code\u003e을 실행하고 반환하기 전에 장고 admins 설정에 리스팅된 사람들에게 메일을 발송하기전에 예외에 대한 설명을 만든다.\u003c/p\u003e\n\u003ch3\u003e11. 미들웨어 처리 4, 마지막 단계\u003c/h3\u003e\n\u003cp\u003e이 단계에서 \u003ccode\u003eHttpResponse\u003c/code\u003e 인스턴스를 반환한다. \u003ccode\u003eHttpResponse\u003c/code\u003e는 \u003ccode\u003e_response_middleware\u003c/code\u003e의 메소드를 호출하고, \u003ccode\u003eHttpRequest\u003c/code\u003e, \u003ccode\u003eHttpResponse\u003c/code\u003e를 인자로 전달한다. 이 단계는 미들웨어가 변화을 일으킬 수 있는 마지막 단계다.\u003c/p\u003e\n\u003ch3\u003e12. 응답\u003c/h3\u003e\n\u003cp\u003e이제 마지막 단계다. 핸들러가 디스패처 시그널 \u003ccode\u003erequest_finished\u003c/code\u003e 를 발생시킨다. 이 신호를 받은 핸들러는 현재 리퀘스트를 위해 사용했던 자원들을 정리하고 해제한다. 예를 들어, 장고는 열러있는 모든 데이터베이스 커넥션을 닫는  \u003ccode\u003erequest_finished\u003c/code\u003e 에 리스너를 연결한다. 이 작업 뒤에, 핸들러는 적절한 반환할 값을 만들고 반환한다.\u003c/p\u003e\n\u003cp\u003e이렇게 해서 장고가 리퀘스트를 다루는 처음부터 마지막 까지 과정을 훑어보았다.\u003c/p\u003e\n\u003ch3\u003eReferences\u003c/h3\u003e\n\u003cul\u003e\n\u003cli\u003ehttps://www.b-list.org/weblog/2006/jun/13/how-django-processes-request/\u003c/li\u003e\n\u003c/ul\u003e\n","title":"번역 | 장고에서 리퀘스트를 처리하는 방법","date":"2020-11-23"}},"__N_SSG":true},"page":"/posts/[id]","query":{"id":"2020-11-23-how-django-processes-a-request"},"buildId":"iS-ZRwUJjhv5CC6AEFHqq","assetPrefix":"/test","nextExport":false,"isFallback":false,"gsp":true}</script><script nomodule="" src="/test/_next/static/chunks/polyfills-2473c6643d514137e5d1.js"></script><script src="/test/_next/static/chunks/main-f094e29a130fd0913879.js" async=""></script><script src="/test/_next/static/chunks/webpack-95c2b224bccf352ee870.js" async=""></script><script src="/test/_next/static/chunks/framework.8952124311421be7a52f.js" async=""></script><script src="/test/_next/static/chunks/commons.8a9058e35fa745bbf02c.js" async=""></script><script src="/test/_next/static/chunks/pages/_app-97b1d9fc1b95c6a753be.js" async=""></script><script src="/test/_next/static/chunks/df2f4768a04bf8778e0feda17bdebe66dead9af1.7a73df8e06444f1fdbed.js" async=""></script><script src="/test/_next/static/chunks/pages/posts/%5Bid%5D-c328b0f962c8fbba879f.js" async=""></script><script src="/test/_next/static/iS-ZRwUJjhv5CC6AEFHqq/_buildManifest.js" async=""></script><script src="/test/_next/static/iS-ZRwUJjhv5CC6AEFHqq/_ssgManifest.js" async=""></script></body></html>
